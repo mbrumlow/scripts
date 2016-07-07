@@ -1,0 +1,49 @@
+#!/bin/bash
+
+# Configuration
+#TO="example@example.com"
+#SCRUM="scrum"
+#NOTES_DIR=~/scrum/
+. ~/.config/scripts/scrum
+
+###############################################################################
+
+YEAR=`date +%Y`
+MONTH=`date +%m`
+DAY=`date +%d`
+
+SCRUM_DIR=${NOTES_DIR}/${YEAR}/${MONTH}
+SCRUM_FILE=${SCRUM_DIR}/${DAY}.txt
+
+mkdir -p ${SCRUM_DIR}
+
+MD5_START=0
+if [ -f ${SCRUM_FILE} ]; then
+    MD5_START=`md5sum ${SCRUM_FILE} | awk '{print $1}'`
+fi
+
+vim ${SCRUM_FILE}
+
+MD5_END=0
+if [ -f ${SCRUM_FILE} ]; then
+    MD5_END=`md5sum ${SCRUM_FILE} | awk '{print $1}'`
+fi
+
+# If the note was updated we need to mail it!
+if [ ${MD5_START} != ${MD5_END} ]; then
+
+    if [ ${MD5_START} == "0" ]; then
+        TITLE_PREFIX=""
+    else
+        TITLE_PREFIX="Update: "
+    fi
+
+    TITLE="${TITLE_PREFIX}Scrum Notes ${SCRUM} - ${MONTH}/${DAY}/${YEAR}"
+
+    echo "Sending email."
+    echo "Subject: ${TITLE}"
+    echo "Body: ${SCRUM_FILE}"
+    echo "To: ${TO}"
+
+    gomail -to "${TO}" -subject "${TITLE}" -body "${SCRUM_FILE}"
+fi
