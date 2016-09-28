@@ -22,7 +22,7 @@ if [ -f ${SCRUM_FILE} ]; then
     MD5_START=`md5sum ${SCRUM_FILE} | awk '{print $1}'`
 fi
 
-vim ${SCRUM_FILE}
+$EDITOR ${SCRUM_FILE}
 
 MD5_END=0
 if [ -f ${SCRUM_FILE} ]; then
